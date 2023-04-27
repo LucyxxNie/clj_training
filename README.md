@@ -1,14 +1,10 @@
-# clj_training
+# Clojure Training Project
 
-FIXME: description
-
-## Installation
-
-Download from http://example.com/FIXME.
+FIXME: A 4 weeks clojure training project.
 
 ## Usage
 
-FIXME: explanation
+FIXME: Update daily clojure notes, updates here.
 
     $ java -jar clj_training-0.1.0-standalone.jar [args]
 
