@@ -1,4 +1,4 @@
-(ns clj-training.BasicTypes)
+(ns clj-training.basic-types)
 
 ;Types
 
