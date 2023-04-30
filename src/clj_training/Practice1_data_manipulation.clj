@@ -70,9 +70,6 @@
 
 ;; Rich Comment Block
 (comment
-  (defn plus [x]
-    (+ x 1)
-    (do 2))
   ;Below are sample data used for this practice
 
 ;;Practice 1 data
@@ -153,9 +150,7 @@
 
   (ingredients-list sample-recipe)
 
-
-
-;;-----------------------------Below are the notes from Lukcasz--------------------
+  ;;-----------------------------Below are the notes from Lukcasz--------------------
   clojure.lang.Keyword
 
   (let [my-map "a" #_{:a  1
