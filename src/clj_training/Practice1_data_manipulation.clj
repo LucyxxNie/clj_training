@@ -15,14 +15,14 @@
   "pass a person info and return his/her US awards"
   [person]
   (-> person
-    (get :awards)
-    (get "US")))
+      (get :awards)
+      (get "US")))
 
 (defn person->world-awards
   "pass a person info and return his/her world awards"
   [person]
   (-> person
-      (get  :awards)
+      (get :awards)
       (get "World")))
 
 
@@ -46,33 +46,35 @@
 (defn recipe-name
   [recipe]
   (-> recipe
-    (get :title)))
+      (get :title)))
 
 (defn recipe-indredients
   [recipe]
   (-> recipe
       (get :ingredients)))
 
+
+
 (defn eggs-num
   [recipe]
   (-> recipe
       ;here, I inserted another function I defined previously
-      (recipe-indredients)
+      :ingredients
       (get "eggs" "no eggs")))
 
 (defn ingredients-list
   "pass a recipe and return the list of ingredients w/o measurement."
   [recipe]
   (->> recipe
-      (recipe-indredients)
-      (map key)))
+       (recipe-indredients)
+       (map key)))
 
 
 ;; Rich Comment Block
 (comment
   ;Below are sample data used for this practice
 
-;;Practice 1 data
+  ;;Practice 1 data
   (def sample-person
     {:name   "Amelia Earhart"
      :birth  1897
@@ -80,7 +82,7 @@
      :awards {"US"    #{"Distinguished Flying Cross" "National Women's Hall of Fame"}
               "World" #{"Altitude record for Autogyro" "First to cross Atlantic twice"}}})
 
-;;Practice 2 data
+  ;;Practice 2 data
   (def sample-recipe
     {:title       "Chocolate chip cookies"
      :ingredients {"flour"           [(+ 2 1/4) :cup]
@@ -93,7 +95,7 @@
                    "eggs"            2
                    "chocolate chips" [12 :ounce]}})
 
-;;Practice 3 data
+  ;;Practice 3 data
   (def sample-gini-coefficient
     {"Afghanistan" {2008 27.8}
      "Indonesia"   {2008 34.1 2010 35.6 2011 38.1}
@@ -102,12 +104,12 @@
   ;--------------------------------------------------------------------------
   ;Below are practice 1 evaluation
   (awards sample-person)
-  #_=> {"US" #{"National Women's Hall of Fame" "Distinguished Flying Cross"},
-   "World" #{"Altitude record for Autogyro" "First to cross Atlantic twice"}}
+  #_=> {"US"    #{"National Women's Hall of Fame" "Distinguished Flying Cross"},
+        "World" #{"Altitude record for Autogyro" "First to cross Atlantic twice"}}
 
   (person->awards sample-person)
-  #_=> {"US" #{"National Women's Hall of Fame" "Distinguished Flying Cross"},
-   "World" #{"Altitude record for Autogyro" "First to cross Atlantic twice"}}
+  #_=> {"US"    #{"National Women's Hall of Fame" "Distinguished Flying Cross"},
+        "World" #{"Altitude record for Autogyro" "First to cross Atlantic twice"}}
 
   (person->us-awards sample-person)
   #_=> #{"National Women's Hall of Fame" "Distinguished Flying Cross"}
@@ -119,8 +121,8 @@
   #_=> "not found"
 
   (awards-by-name "Amelia Earhart")
-  #_=> {"US" #{"National Women's Hall of Fame" "Distinguished Flying Cross"},
-   "World" #{"Altitude record for Autogyro" "First to cross Atlantic twice"}}
+  #_=> {"US"    #{"National Women's Hall of Fame" "Distinguished Flying Cross"},
+        "World" #{"Altitude record for Autogyro" "First to cross Atlantic twice"}}
 
   (birth sample-person)
   #_=> 1897
@@ -133,14 +135,14 @@
   (-> sample-person
       (person->awards))
 
-;Practice 1 evaluation ended
-;-----------------------------------------------------------------------------
-;Below are practice 2 evaluation
+  ;Practice 1 evaluation ended
+  ;-----------------------------------------------------------------------------
+  ;Below are practice 2 evaluation
 
   (recipe-name sample-recipe)
   (-> sample-recipe
       (recipe-name))
-  #_=>"Chocolate chip cookies"
+  #_=> "Chocolate chip cookies"
 
   (-> sample-recipe
       (recipe-indredients))
@@ -164,7 +166,7 @@
                         :f  "c"
                         "g" 1}}}]
     #_(-> my-map :b :d :f)
-    (get-in my-map [:b :d "g"]))
+    ∑ (get-in my-map [:b :d "g"]))
 
   (get (get (get recipe :ingredients) "chocolate chips") 0 "not found")
 
@@ -186,7 +188,7 @@
                 3))))
 
   (#(+ 2 %)
-   3)
+    3)
 
   ((fn [n]
      (+ 2 n))
@@ -210,4 +212,55 @@
   ;; Macro
   ;; Code
   ;; Data
-)
+  )
+
+;; palindrome
+(defn palindrome?
+  [s]
+  (= (seq s)
+     (reverse (seq s))))
+
+(defn palindrome?
+  [s]
+  (loop [left-pointer  0
+         right-pointer (-> (count s)
+                           dec)]
+    (if (<= right-pointer left-pointer)
+      true
+      (if (not (= (.charAt s left-pointer)
+                  (.charAt s right-pointer)))
+        false
+        (recur (inc left-pointer)
+               (dec right-pointer))))))
+
+(defn palindrome?
+  [s]
+  (->> (map (fn [idx1 idx2]
+               [idx1 idx2]
+               (= (.charAt s idx1)
+                  (.charAt s idx2)))
+             (range 0 (-> s count dec))
+             (range (-> s count dec) 0 -1))
+       #_(filter false?)
+       ))
+
+
+(->> (range)
+     (map (fn [x]
+            (println x)
+            x))
+     (take 25))
+
+
+
+(comment
+
+   (palindrome? "aecba")
+
+   (-> (->> [1 2 3 4 5 6]
+            (filter even?)
+            (reduce +))
+       (str))
+
+   )
+

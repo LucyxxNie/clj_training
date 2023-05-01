@@ -10,7 +10,7 @@
   (str/lower-case "ABC XYZ")
   (str/trim "    a ")
   (str/starts-with? "abc" "b")
-  ()
+
   ;;---------------------------------list--------------------------------
   (.indexOf '(20 20 90) 20)
   #_=> 0
