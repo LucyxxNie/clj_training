@@ -10,29 +10,41 @@
       (str/split-lines)))
 ;;Q1: find 2 numbers in the file that would sum up to be 2020, and find the product of these 2 numbers.
 
-;Approach 1: brute force
-;loop through the entries and use 2020 to minus each number, and loop through the rest of the vectors to find the
-;if the (2020 - num) exist. Time: O(n^2) space: O(1)
+;Approach 1: brute force (optimized)
+;sort the vector in ascending order, and use 2 pointers pointing to the head and the end of the vector,
+;and move pointers based on the sum of 2 numbers.
+; Time: O(n) space: O(1)
 
-
-;Approach 2: binary search
-;sort the vector in ascending order, and use 2 pointers pointing to head and end of the vector, and move pointers
-;based on the sum of 2 numbers. Time: O(log n) space: O(1)
-
-(defn binary-search
+(defn search
   [data-set]
-  (->> map (fn [left-pointer
-                right-pointer]
-             ((if (== 2020 (+ (get data-set left-pointer)
-                              (get data-set right-pointer)))
+  (first (for [left-pointer  (range 0 (-> data-set count))
+               right-pointer (range (- (-> data-set count) 1) 0 -1)
+               :let   [num1 (data-set left-pointer)
+                      num2 (data-set right-pointer)]
+               :when (= 2020 (+ num1 num2))]
+           #_[num1 num2]
+           (* num1 num2)
+           )))
 
-                )))
-       (range 0 (-> data-set count))
-       (range (-> data-set count) 0 -1))
-  )
+;Approach 2: set
+;use a set to store the numbers, and loop through the numbers and find if (2020 - nums) exists in
+;set or not. Return the product if they exist.
+;Time:O(n) Space:O(n)
 
+(defn set-search
+  [data-set]
+  (let [set (into #{} data-set)]
+    (first (for [pointer  (range 0 (-> data-set count))
+                 :let     [num (data-set pointer)]
+                 :when    (->> num
+                              (- 2020)
+                              (contains? set))]
+             (* num (- 2020 num))
+             )))
+    )
 
 (comment
+
   (def entries (file->seq "aoc2020/day1/input.txt"))
   #_=>
   ["1348"
@@ -44,18 +56,29 @@
 
   (def sorted-entries (->> entries
                            (map (fn [string] (Integer/parseInt string)))
-                           (sort)))
+                           (sort)
+                           (into [])))
   #_=>
-  (183
-    455
-    470
-    651
-    667
-    695
-    934
-    974
-    988
-    ...)
+    [183
+     455
+     470
+     651
+     667
+     695
+     934
+     974
+     988
+     ...]
+
+  (into #{} [1 2 3] )
+
+  (search sorted-entries)
+  #_=> 712075
+
+  (set-search sorted-entries)
+  #_=> 712075
+
+
 
 
   )
