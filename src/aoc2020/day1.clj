@@ -14,11 +14,33 @@
 
 (defn two-sum
   [data]
-  (let [set               (into #{} data)
-        compl-existence?   (fn [x] (contains? set (complement-2020 x)))
-        result            (filterv compl-existence? set)]
-    (* (result 0) (result 1))))
+  (let [set                 (into #{} data)
+        compl-exist?        (fn [x] (contains? set (complement-2020 x)))
+        result              (filterv compl-exist? set)]
 
+    (* (result 0) (result 1))
+    ))
+
+
+(defn three-sum-step1
+  [data num]
+  (let [set                 (into #{} data)
+        compl               (complement-2020 num)
+        compl-exist?        (fn [x] (contains? set (complement compl x)))
+        result              (filterv compl-exist? set)]
+
+    (if (first result)
+      (* num (result 0) (result 1))
+      nil)
+    ))
+
+(defn three-sum-step2
+  [data]
+  (->> (mapv
+         (fn [x] (three-sum-step1 data x))
+         data)
+       (filterv (fn [n] n))
+       (first)))
 
 
 (comment
@@ -38,8 +60,15 @@
         1266
         1449,,,]
 
-  (two-sum entries)
+  (two-sum entries 1710)
   #_=> 712075
+
+  (three-sum-step2 entries)
+  #_=> 145245270
+
+
+
+
 
 
 
