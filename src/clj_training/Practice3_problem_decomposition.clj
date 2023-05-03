@@ -117,12 +117,12 @@
 ;Rich comment block
 (comment
 
-  (do (def sample-entry-s (->> (file->seq "aoc2020/day1/input-sample.txt")
+  (do (def sample-entry-s (->> (file->seq "aoc2020/day1/input.txt-sample.txt")
                                (mapv parse-int)))
       sample-entry-s)
   #_=> [1721 979 366 299 675 1456]
 
-  (do (def entries (file->seq "aoc2020/day1/input.txt"))
+  (do (def entries (file->seq "aoc2020/day1/input.txt.txt"))
       entries)
   #_=> ["1348"
         "1621"
@@ -189,6 +189,8 @@
   (mapv
     (two-sum-set x entries-s)
     entries-s)
+
+  (filterv (fn [n] n) [1 2 3])
   )
 
 
