@@ -1,95 +1,64 @@
 (ns aoc2020.day1
   (:require [aoc2020.util :refer [file->seq]]))
 
-(defn complement
+(defn find-complement
   [sum x]
   (- sum x))
 
+(defn compl-exist?
+  [num sum data-set]
+  (contains? data-set (find-complement sum num)))
 
-(defn find-complement
-  [data-set sum]
-  (let [compl-exist?  (fn [num]
-                        (contains? data-set (complement sum num)))
-        result        (filterv compl-exist? data-set)]
+(defn filter-compl-in-dataset
+  [sum data-set]
+  (let [compl-exist? (fn [x] (compl-exist? x sum data-set))
+        result       (filterv compl-exist? data-set)
+        found?       (first result)]
 
-    (when (first result)
+    (when found?
       result)))
 
 (defn two-sum-product
-  [data-s sum]
-  (let [data-set     (into #{} data-s)
-        result       (find-complement data-set sum)
-        num1         (result 0)
-        num2         (result 1)]
+  [sum data-s]
+  (let [data-set (into #{} data-s)
+        result   (filter-compl-in-dataset sum data-set)
+        num1     (get result 0)
+        num2     (get result 1)]
     (* num1 num2)))
 
 
 (defn compl-product
-  [data-s sum num]
-  (let [data-set     (into #{} data-s)
-        compl        (complement sum num)
-        result       (find-complement data-set compl)
-        num2         (get result 0)
-        num3         (get result 1)]
+  [num sum data-s]
+  (let [data-set   (into #{} data-s)
+        compl      (find-complement sum num)
+        result     (filter-compl-in-dataset compl data-set)
+        found?     (first result)
+        compl-data (take 2 result)]
 
-    (when (and num2 num3)
-      (* num num2 num3))))
+    (when found?
+      (reduce * num compl-data))))
 
 
 (defn three-sum-product
-  [data-s sum]
+  [sum data-s]
   (->> (mapv
-         (fn [x] (compl-product data-s sum x))
+         (fn [x] (compl-product x sum data-s))
          data-s)
-       (filterv int?)
-       (first)))
+    (filterv int?)
+    (first)))
 
 
 (comment
-  ;;------------------------function evaluation---------------------------
-
-  (complement 2020 20)
-  #_=> 2000
-  (mapv (partial complement 2020) [1 6 5 23 90 3])
-  #_=> [2019 2014 2015 1997 1930 2017]
-  (mapv (partial complement 2020) sample-entry-s)
-  #_=> [299 1041 1654 1721 1345 564]
-
-
-  (find-complement #{1 6 5 23 90 3} 29)
-  #_=> [6 23]
-  (find-complement (into #{} sample-entry-s) 2020)
-  #_=> [299 1721]
-  (find-complement (into #{} entries) 2020)
-  #_=> [1565 455]
-
-
-  (two-sum-product [1 6 5 23 90 3] 29)
-  #_=> 138
-  (two-sum-product sample-entry-s 2020)
-  #_=> 514579
-  (two-sum-product entries 2020)
-  #_=> 712075
-
-
-  (three-sum-product [1 6 5 23 90 3] 118)
-  #_=> 10350
-  (three-sum-product sample-entry-s 2020)
-  #_=> 241861950
-  (three-sum-product entries 2020)
-  #_=> 145245270
-
-
-;------------------------------data----------------------------------------
+  ;------------------------------data----------------------------------------
 
   (do (def sample-entry-s (->> (file->seq "aoc2020/day1/input-sample.txt")
-                               (mapv parse-long)))
-      sample-entry-s)
+                            (mapv parse-long)))
+    sample-entry-s)
   #_=> [1721 979 366 299 675 1456]
 
-  (do (def entries (->> (file->seq "aoc2020/day1/input.txt")
-                        (mapv parse-long)))
-      entries)
+  (do (def entry-s (->> (file->seq "aoc2020/day1/input.txt")
+                     (mapv parse-long)))
+    entry-s)
   #_=> [1348
         1621
         1500
@@ -97,7 +66,48 @@
         1266
         1449,,,]
 
+  ;;------------------------function evaluation---------------------------
 
+  (mapv (partial find-complement 20) [1 6 5 23 90 3 -1])
+  #_=> [19 14 15 -3 -70 17 21]
+
+
+  (compl-exist? 2 10 #{8 20 30 100})
+  #_=> true
+  (compl-exist? 2 10 #{10 20 30 100})
+  #_=> false
+
+
+  (filter-compl-in-dataset 29 #{9 10 20 30 40})
+  #_=> [20 9]
+  (filter-compl-in-dataset 29 #{9 17 20 12 40})
+  #_=> [20 9 17 12]
+  (filter-compl-in-dataset 2020 #{10 20 30 100})
+  #_=> nil
+
+
+  (two-sum-product 29 [9 10 20 30 40])
+  #_=> 180
+  (two-sum-product 89 [1 6 5 23 90 3 -1])
+  #_=> -90
+
+
+  (two-sum-product 2020 sample-entry-s)
+  #_=> 514579
+  (two-sum-product 2020 entry-s)
+  #_=> 712075
+
+
+  (three-sum-product 118 [1 6 5 23 90 3])
+  #_=> 10350
+  (three-sum-product 39 [9 10 20 30 40])
+  #_=> 1800
+
+
+  (three-sum-product 2020 sample-entry-s)
+  #_=> 241861950
+  (three-sum-product 2020 entry-s)
+  #_=> 145245270
 
   )
 
