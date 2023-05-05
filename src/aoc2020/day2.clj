@@ -2,12 +2,6 @@
   (:require [aoc2020.util :refer [file->seq]])
   (:require [clojure.string :as str]))
 
-(defn null-check?
-  [char-frequency]
-  (if (nil? char-frequency)
-    0
-    char-frequency))
-
 (defn policy-pwd-categorizer
   [policy-pwd-str]
   (let [remove-char  (str/replace policy-pwd-str
@@ -22,6 +16,12 @@
                   :limit-letter letter->char}
      :pwd        pwd->char}))
 
+(defn lim-letter-exist-in-pwd?
+  [lim-letter-frequency]
+  (if (nil? lim-letter-frequency)
+    0
+    lim-letter-frequency))
+
 (defn pwd-validity-check
   [pwd-policy+pwd-map]
   (let [{pwd-policy :pwd-policy
@@ -29,13 +29,14 @@
         {lower-limit    :lower-limit
          upper-limit    :upper-limit
          [limit-letter] :limit-letter} pwd-policy
-        pwd-letter-cnt        (frequencies pwd)
-        pwd-appear-lim-letter (-> (get pwd-letter-cnt limit-letter)
-                                (null-check?))
-        above-lo-bound?       (>= pwd-appear-lim-letter
-                                lower-limit)
-        under-hi-bound?       (<= pwd-appear-lim-letter
-                                upper-limit)]
+        pwd-letter-cnt       (frequencies pwd)
+        lim-letter-frequency (-> pwd-letter-cnt
+                               (get limit-letter)
+                               (lim-letter-exist-in-pwd?))
+        above-lo-bound?      (>= lim-letter-frequency
+                               lower-limit)
+        under-hi-bound?      (<= lim-letter-frequency
+                               upper-limit)]
     (and above-lo-bound? under-hi-bound?)))
 
 (defn valid-password-cnt
@@ -66,7 +67,7 @@
 
   ;----------------------------function evaluation-----------------
 
-  (policy-pwd-categorizer "1-2@!a:#$@%*()   dsdsas")
+  (policy-pwd-categorizer "1-2@! a: #$@%*()   dsdsas")
   #_=> {:pwd-policy {:lower-limit  1,
                      :upper-limit  2,
                      :limit-letter (\a)},
@@ -81,18 +82,37 @@
          :pwd        (\c \c \c \c \c \c \c \c \c)}]
 
 
+  (lim-letter-exist-in-pwd? nil)
+  #_=> 0
+  (lim-letter-exist-in-pwd? 10)
+  #_=> 10
+
+
   (pwd-validity-check {:pwd-policy {:lower-limit  1,
                                     :upper-limit  2,
                                     :limit-letter [\a]},
                        :pwd        [\d \s \d \s \a \s]})
   #_=> true
 
-  (->> ["1-3 a: abcde"
-        "1-3 b: cdefg"
-        "2-9 c: ccccccccc"]
-    (mapv parse-policy-pwd-str)
-    (mapv pwd-validity-check))
-  #_=> [true false true]
+  (pwd-validity-check {:pwd-policy {:lower-limit  1,
+                                    :upper-limit  2,
+                                    :limit-letter [\a]},
+                       :pwd        [\d \s \d \s \a \a]})
+  #_=> true
+
+  (pwd-validity-check {:pwd-policy {:lower-limit  1,
+                                    :upper-limit  3,
+                                    :limit-letter [\b]},
+                       :pwd        [\c \d \e \f \g]})
+  #_=> false
+
+  (pwd-validity-check {:pwd-policy {:lower-limit  1,
+                                    :upper-limit  3,
+                                    :limit-letter [\b]},
+                       :pwd        [\b \b \b \b \g]})
+  #_=> false
+
+
 
   (valid-password-cnt ["1-3 a: abcde"
                        "1-3 b: cdefg"
@@ -100,13 +120,13 @@
   #_=> 2
 
   (valid-password-cnt entry-s)
+  #_=> 393
 
 
 
 
 
   ;------------------------notes please ignore for now!!---------------------------
-  (count [[1] [2] [10]])
 
 
   (def client {:info {:name        "abcsdsd"
@@ -122,9 +142,6 @@
   (true)
 
   )
-
-(frequencies (vec (seq "abcs")))
-
 
 (defn do-something
   [[k v]]
@@ -150,5 +167,6 @@
 
 (apply-arithmetic [1 2 3 4]
   {})
+
 
 
