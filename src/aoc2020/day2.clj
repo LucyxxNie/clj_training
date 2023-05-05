@@ -17,38 +17,30 @@
      :pwd        pwd->char}))
 
 
-(defn lim-letter-exist-in-pwd?
-  [lim-letter-frequency]
-  (if (nil? lim-letter-frequency)
-    0
-    lim-letter-frequency))
-
-(defn sled-rental-pwd-validity-check
+(defn sled-rental-pwd-valid-check
   [pwd-policy+pwd-map]
   (let [{pwd-policy :pwd-policy
          pwd        :pwd} pwd-policy+pwd-map
         {lower-limit    :lower-limit
          upper-limit    :upper-limit
          [limit-letter] :limit-letter} pwd-policy
-        pwd-letter-cnt       (frequencies pwd)
-        lim-letter-frequency (-> pwd-letter-cnt
-                               (get limit-letter)
-                               (lim-letter-exist-in-pwd?))
-        above-lo-bound?      (>= lim-letter-frequency
-                               lower-limit)
-        under-hi-bound?      (<= lim-letter-frequency
-                               upper-limit)]
-    (and above-lo-bound? under-hi-bound?)))
+        pwd-letter-cnt (frequencies pwd)
+        {letter-freq limit-letter :or {letter-freq 0}} pwd-letter-cnt
+        abv-lo-bnd?    (>= letter-freq
+                         lower-limit)
+        und-hi-bnd?    (<= letter-freq
+                         upper-limit)]
+    (and abv-lo-bnd? und-hi-bnd?)))
 
 (defn sled-rental-valid-password-cnt
   [password-s]
   (->> password-s
     (mapv policy-pwd-categorizer)
-    (mapv sled-rental-pwd-validity-check)
+    (mapv sled-rental-pwd-valid-check)
     (remove false?)
     (count)))
 
-(defn )
+
 (defn Toboggan-auth-pwd-valid-check
   [pwd-policy+pwd-map])
 
@@ -89,34 +81,28 @@
          :pwd        (\c \c \c \c \c \c \c \c \c)}]
 
 
-  (lim-letter-exist-in-pwd? nil)
-  #_=> 0
-  (lim-letter-exist-in-pwd? 10)
-  #_=> 10
-
-
-  (sled-rental-pwd-validity-check {:pwd-policy {:lower-limit  1,
-                                    :upper-limit  2,
-                                    :limit-letter [\a]},
-                       :pwd        [\d \s \d \s \a \s]})
+  (sled-rental-pwd-valid-check {:pwd-policy {:lower-limit  1,
+                                                :upper-limit  2,
+                                                :limit-letter [\a]},
+                                   :pwd        [\d \s \d \s \a \s]})
   #_=> true
 
-  (sled-rental-pwd-validity-check {:pwd-policy {:lower-limit  1,
-                                    :upper-limit  2,
-                                    :limit-letter [\a]},
-                       :pwd        [\d \s \d \s \a \a]})
+  (sled-rental-pwd-valid-check {:pwd-policy {:lower-limit  1,
+                                                :upper-limit  2,
+                                                :limit-letter [\a]},
+                                   :pwd        [\d \s \d \s \a \a]})
   #_=> true
 
-  (sled-rental-pwd-validity-check {:pwd-policy {:lower-limit  1,
-                                    :upper-limit  3,
-                                    :limit-letter [\b]},
-                       :pwd        [\c \d \e \f \g]})
+  (sled-rental-pwd-valid-check {:pwd-policy {:lower-limit  1,
+                                                :upper-limit  3,
+                                                :limit-letter [\b]},
+                                   :pwd        [\c \d \e \f \g]})
   #_=> false
 
-  (sled-rental-pwd-validity-check {:pwd-policy {:lower-limit  1,
-                                    :upper-limit  3,
-                                    :limit-letter [\b]},
-                       :pwd        [\b \b \b \b \g]})
+  (sled-rental-pwd-valid-check {:pwd-policy {:lower-limit  1,
+                                                :upper-limit  3,
+                                                :limit-letter [\b]},
+                                   :pwd        [\b \b \b \b \g]})
   #_=> false
 
 
