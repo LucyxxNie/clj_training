@@ -1,4 +1,4 @@
-(ns aoc2020.day1
+(ns aoc2020.day1_copy
   (:require [aoc2020.util :refer [file->seq]]))
 
 (defn find-complement

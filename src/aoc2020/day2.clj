@@ -16,13 +16,14 @@
                   :limit-letter letter->char}
      :pwd        pwd->char}))
 
+
 (defn lim-letter-exist-in-pwd?
   [lim-letter-frequency]
   (if (nil? lim-letter-frequency)
     0
     lim-letter-frequency))
 
-(defn pwd-validity-check
+(defn sled-rental-pwd-validity-check
   [pwd-policy+pwd-map]
   (let [{pwd-policy :pwd-policy
          pwd        :pwd} pwd-policy+pwd-map
@@ -39,25 +40,31 @@
                                upper-limit)]
     (and above-lo-bound? under-hi-bound?)))
 
-(defn valid-password-cnt
+(defn sled-rental-valid-password-cnt
   [password-s]
   (->> password-s
     (mapv policy-pwd-categorizer)
-    (mapv pwd-validity-check)
+    (mapv sled-rental-pwd-validity-check)
     (remove false?)
     (count)))
+
+(defn )
+(defn Toboggan-auth-pwd-valid-check
+  [pwd-policy+pwd-map])
+
+
 
 (comment
   ;--------------------------data---------------------------------
 
   (do (def sample-entry-s (file->seq "aoc2020/day2/input-sample.txt"))
-    sample-entries)
+    sample-entry-s)
   #_=> ["1-3 a: abcde"
         "1-3 b: cdefg"
         "2-9 c: ccccccccc"]
 
   (do (def entry-s (file->seq "aoc2020/day2/input.txt"))
-    entries)
+    entry-s)
   #_=> ["15-16 f: ffffffffffffffhf"
         "6-8 b: bbbnvbbb"
         "6-10 z: zhzzzzfzzzzzzzzzpzz"
@@ -65,7 +72,7 @@
         "5-6 v: hvvgvrm"
         "1-8 s: sssssssssss",,,]
 
-  ;----------------------------function evaluation-----------------
+  ;----------------------------function evaluation part 1-----------------
 
   (policy-pwd-categorizer "1-2@! a: #$@%*()   dsdsas")
   #_=> {:pwd-policy {:lower-limit  1,
@@ -88,25 +95,25 @@
   #_=> 10
 
 
-  (pwd-validity-check {:pwd-policy {:lower-limit  1,
+  (sled-rental-pwd-validity-check {:pwd-policy {:lower-limit  1,
                                     :upper-limit  2,
                                     :limit-letter [\a]},
                        :pwd        [\d \s \d \s \a \s]})
   #_=> true
 
-  (pwd-validity-check {:pwd-policy {:lower-limit  1,
+  (sled-rental-pwd-validity-check {:pwd-policy {:lower-limit  1,
                                     :upper-limit  2,
                                     :limit-letter [\a]},
                        :pwd        [\d \s \d \s \a \a]})
   #_=> true
 
-  (pwd-validity-check {:pwd-policy {:lower-limit  1,
+  (sled-rental-pwd-validity-check {:pwd-policy {:lower-limit  1,
                                     :upper-limit  3,
                                     :limit-letter [\b]},
                        :pwd        [\c \d \e \f \g]})
   #_=> false
 
-  (pwd-validity-check {:pwd-policy {:lower-limit  1,
+  (sled-rental-pwd-validity-check {:pwd-policy {:lower-limit  1,
                                     :upper-limit  3,
                                     :limit-letter [\b]},
                        :pwd        [\b \b \b \b \g]})
@@ -114,15 +121,15 @@
 
 
 
-  (valid-password-cnt ["1-3 a: abcde"
-                       "1-3 b: cdefg"
-                       "2-9 c: ccccccccc"])
+  (sled-rental-valid-password-cnt ["1-3 a: abcde"
+                                   "1-3 b: cdefg"
+                                   "2-9 c: ccccccccc"])
   #_=> 2
 
-  (valid-password-cnt entry-s)
+  (sled-rental-valid-password-cnt entry-s)
   #_=> 393
 
-
+  ;----------------------------function evaluation part 2-----------------
 
 
 
