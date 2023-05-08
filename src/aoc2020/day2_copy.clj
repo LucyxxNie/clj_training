@@ -4,9 +4,10 @@
 
 (defn sled-rental-policy-pwd-categorizer
   [policy-pwd-str]
-  (let [remove-char  (str/replace policy-pwd-str
-                       #"[^a-zA-Z0-9]" " ")
-        [lower-str upper-str letter pwd] (str/split remove-char #"\s+")
+  (let [clean-pwd    (-> policy-pwd-str
+                       (str/replace #"[^a-zA-Z0-9]" " ")
+                       (str/split #"\s+"))
+        [lower-str upper-str letter pwd] clean-pwd
         lower        (parse-long lower-str)
         upper        (parse-long upper-str)
         letter->char (seq letter)
@@ -44,14 +45,15 @@
 
 (defn toboggan-policy-pwd-categorizer
   [policy-pwd-str]
-  (let [remove-char  (str/replace policy-pwd-str
-                       #"[^a-zA-Z0-9]" " ")
-        [fir-pos-str sec-pos-str letter pwd] (str/split remove-char #"\s+")
-        fir-pos      (parse-long fir-pos-str)
-        sec-pos      (parse-long sec-pos-str)
+  (let [clean-pwd    (-> policy-pwd-str
+                       (str/replace #"[^a-zA-Z0-9]" " ")
+                       (str/split #"\s+"))
+        [fir-pos-str sec-pos-str letter pwd] clean-pwd
+        fir-position (parse-long fir-pos-str)
+        sec-position (parse-long sec-pos-str)
         letter->char (seq letter)]
-    {:pwd-policy {:first-position  fir-pos
-                  :second-position sec-pos
+    {:pwd-policy {:first-position  fir-position
+                  :second-position sec-position
                   :limit-letter    letter->char}
      :pwd        pwd}))
 
