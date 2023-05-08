@@ -1,4 +1,4 @@
-(ns aoc2020.day2
+(ns aoc2020.day2_copy
   (:require [aoc2020.util :refer [file->seq]])
   (:require [clojure.string :as str]))
 
@@ -167,18 +167,18 @@
 
   (Tob-pwd-policy->xor
     :fir-letter \a
-    :sec-letter\b
-    :limit-letter\a)
+    :sec-letter \b
+    :limit-letter \a)
   #_=> true
   (Tob-pwd-policy->xor
     :fir-letter \a
-    :sec-letter\a
-    :limit-letter\a)
+    :sec-letter \a
+    :limit-letter \a)
   #_=> false
   (Tob-pwd-policy->xor
     :fir-letter \c
-    :sec-letter\d
-    :limit-letter\a)
+    :sec-letter \d
+    :limit-letter \a)
   #_=> false
 
   (Tob-auth-pwd-valid-check {:pwd-policy {:first-pos    1,
