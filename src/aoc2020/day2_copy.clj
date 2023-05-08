@@ -2,7 +2,7 @@
   (:require [aoc2020.util :refer [file->seq]])
   (:require [clojure.string :as str]))
 
-(defn old-policy-pwd-categorizer
+(defn sled-rental-policy-pwd-categorizer
   [policy-pwd-str]
   (let [remove-char  (str/replace policy-pwd-str
                        #"[^a-zA-Z0-9]" " ")
@@ -17,32 +17,32 @@
      :pwd        pwd->char}))
 
 
-(defn old-pwd-valid-check
-  [pwd-policy+pwd-map]
+(defn sled-rental-pwd-validity-check
+  [policy-pwd-map]
   (let [{pwd-policy :pwd-policy
-         pwd        :pwd} pwd-policy+pwd-map
+         pwd        :pwd} policy-pwd-map
         {lower-limit    :lower-limit
          upper-limit    :upper-limit
          [limit-letter] :limit-letter} pwd-policy
         pwd-letter-cnt (frequencies pwd)
         {letter-freq limit-letter :or {letter-freq 0}} pwd-letter-cnt
-        abv-lo-bnd?    (>= letter-freq
+        abv-low-limit? (>= letter-freq
                          lower-limit)
-        und-hi-bnd?    (<= letter-freq
+        und-hi-limit?  (<= letter-freq
                          upper-limit)]
-    (and abv-lo-bnd? und-hi-bnd?)))
+    (and abv-low-limit? und-hi-limit?)))
 
-(defn old-valid-password-cnt
+(defn sled-rental-valid-pwd-cnt
   [pwd-db-s]
   (->> pwd-db-s
-    (mapv old-policy-pwd-categorizer)
-    (mapv old-pwd-valid-check)
+    (mapv sled-rental-policy-pwd-categorizer)
+    (mapv sled-rental-pwd-validity-check)
     (remove false?)
     (count)))
 
 
 
-(defn Tob-policy-pwd-categorizer
+(defn toboggan-policy-pwd-categorizer
   [policy-pwd-str]
   (let [remove-char  (str/replace policy-pwd-str
                        #"[^a-zA-Z0-9]" " ")
@@ -50,12 +50,12 @@
         fir-pos      (parse-long fir-pos-str)
         sec-pos      (parse-long sec-pos-str)
         letter->char (seq letter)]
-    {:pwd-policy {:first-pos    fir-pos
-                  :second-pos   sec-pos
-                  :limit-letter letter->char}
+    {:pwd-policy {:first-position  fir-pos
+                  :second-position sec-pos
+                  :limit-letter    letter->char}
      :pwd        pwd}))
 
-(defn Tob-pwd-policy->xor
+(defn toboggan-pwd-policy-xor
   [& {:keys [fir-letter sec-letter limit-letter]}]
   (let [fir-eql? (= fir-letter limit-letter)
         sec-eql? (= sec-letter limit-letter)]
@@ -64,25 +64,26 @@
       (or fir-eql? sec-eql?) true
       :else false)))
 
-(defn Tob-auth-pwd-valid-check
-  [pwd-policy+pwd-map]
+(defn toboggan-pwd-validity-check
+  [policy-pwd-map]
   (let [{pwd-policy :pwd-policy
-         pwd        :pwd} pwd-policy+pwd-map
-        {fir-pos        :first-pos
-         sec-pos        :second-pos
+         pwd        :pwd} policy-pwd-map
+        {fir-position   :first-position
+         sec-position   :second-position
          [limit-letter] :limit-letter} pwd-policy
-        fir-letter (get pwd (- fir-pos 1))
-        sec-letter (get pwd (- sec-pos 1))]
-    (Tob-pwd-policy->xor
+        fir-letter (get pwd (- fir-position 1))
+        sec-letter (get pwd (- sec-position 1))]
+    (toboggan-pwd-policy-xor
       :fir-letter fir-letter
       :sec-letter sec-letter
       :limit-letter limit-letter)))
 
-(defn Tob-valid-pwd-cnt
+
+(defn toboggan-valid-pwd-cnt
   [pwd-db-s]
   (->> pwd-db-s
-    (mapv Tob-policy-pwd-categorizer)
-    (mapv Tob-auth-pwd-valid-check)
+    (mapv toboggan-policy-pwd-categorizer)
+    (mapv toboggan-pwd-validity-check)
     (remove false?)
     (count)))
 
@@ -91,8 +92,8 @@
 (comment
   ;--------------------------data---------------------------------
 
-  (do (def sample-entry-s (file->seq "aoc2020/day2/input-sample.txt"))
-    sample-entry-s)
+  (do (def sample-pwd-s (file->seq "aoc2020/day2/input-sample.txt"))
+    sample-pwd-s)
   #_=> ["1-3 a: abcde"
         "1-3 b: cdefg"
         "2-9 c: ccccccccc"]
@@ -109,13 +110,13 @@
   ;----------------------------function evaluation part 1-----------------
   ;Old-sled shop password policy
 
-  (old-policy-pwd-categorizer "1-2@! a: #$@%*()   dsdsas")
+  (sled-rental-policy-pwd-categorizer "1-2@! a: #$@%*()   dsdsas")
   #_=> {:pwd-policy {:lower-limit  1,
                      :upper-limit  2,
                      :limit-letter (\a)},
         :pwd        (\d \s \d \s \a \s)}
 
-  (mapv old-policy-pwd-categorizer sample-entry-s)
+  (mapv sled-rental-policy-pwd-categorizer sample-pwd-s)
   #_=> [{:pwd-policy {:lower-limit 1, :upper-limit 3, :limit-letter (\a)},
          :pwd        (\a \b \c \d \e)}
         {:pwd-policy {:lower-limit 1, :upper-limit 3, :limit-letter (\b)},
@@ -124,87 +125,88 @@
          :pwd        (\c \c \c \c \c \c \c \c \c)}]
 
 
-  (old-pwd-valid-check {:pwd-policy {:lower-limit  1,
-                                     :upper-limit  2,
-                                     :limit-letter [\a]},
-                        :pwd        [\d \s \d \s \a \s]})
+  (sled-rental-pwd-validity-check {:pwd-policy {:lower-limit  1,
+                                                :upper-limit  2,
+                                                :limit-letter [\a]},
+                                   :pwd        [\d \s \d \s \a \s]})
   #_=> true
 
-  (old-pwd-valid-check {:pwd-policy {:lower-limit  1,
-                                     :upper-limit  2,
-                                     :limit-letter [\a]},
-                        :pwd        [\d \s \d \s \a \a]})
+  (sled-rental-pwd-validity-check {:pwd-policy {:lower-limit  1,
+                                                :upper-limit  2,
+                                                :limit-letter [\a]},
+                                   :pwd        [\d \s \d \s \a \a]})
   #_=> true
 
-  (old-pwd-valid-check {:pwd-policy {:lower-limit  1,
-                                     :upper-limit  3,
-                                     :limit-letter [\b]},
-                        :pwd        [\c \d \e \f \g]})
+  (sled-rental-pwd-validity-check {:pwd-policy {:lower-limit  1,
+                                                :upper-limit  3,
+                                                :limit-letter [\b]},
+                                   :pwd        [\c \d \e \f \g]})
   #_=> false
 
-  (old-pwd-valid-check {:pwd-policy {:lower-limit  1,
-                                     :upper-limit  3,
-                                     :limit-letter [\b]},
-                        :pwd        [\b \b \b \b \g]})
+  (sled-rental-pwd-validity-check {:pwd-policy {:lower-limit  1,
+                                                :upper-limit  3,
+                                                :limit-letter [\b]},
+                                   :pwd        [\b \b \b \b \g]})
   #_=> false
 
-  (old-valid-password-cnt ["1-3 a: abcde"
-                           "1-3 b: cdefg"
-                           "2-9 c: ccccccccc"])
+
+  (sled-rental-valid-pwd-cnt ["1-3 a: abcde"
+                              "1-3 b: cdefg"
+                              "2-9 c: ccccccccc"])
   #_=> 2
 
-  (old-valid-password-cnt pwd-db-s)
+  (sled-rental-valid-pwd-cnt pwd-db-s)
   #_=> 393
 
   ;----------------------------function evaluation part 2 -----------------
   ;;Toboggan Corp Auth Sys password policy
 
-  (Tob-policy-pwd-categorizer "1-2@! a: #$@%*()   dsdsas")
+  (toboggan-policy-pwd-categorizer "1-2@! a: #$@%*()   dsdsas")
   #_=> {:pwd-policy {:first-pos    1,
                      :second-pos   2,
-                     :limit-letter (\a)},
-        :pwd        "dsdsas"}
+                     :limit-letter [\a],
+                     :pwd} "dsdsas"}
 
-  (Tob-pwd-policy->xor
+  (toboggan-pwd-policy-xor
     :fir-letter \a
     :sec-letter \b
     :limit-letter \a)
   #_=> true
-  (Tob-pwd-policy->xor
+  (toboggan-pwd-policy-xor
     :fir-letter \a
     :sec-letter \a
     :limit-letter \a)
   #_=> false
-  (Tob-pwd-policy->xor
+  (toboggan-pwd-policy-xor
     :fir-letter \c
     :sec-letter \d
     :limit-letter \a)
   #_=> false
 
-  (Tob-auth-pwd-valid-check {:pwd-policy {:first-pos    1,
-                                          :second-pos   3,
-                                          :limit-letter [\a]},
-                             :pwd        "abcde"})
+  (toboggan-pwd-validity-check {:pwd-policy {:first-position  1,
+                                             :second-position 3,
+                                             :limit-letter    [\a]},
+                                :pwd        "abcde"})
   #_=> true
 
-  (Tob-auth-pwd-valid-check {:pwd-policy {:first-pos    1,
-                                          :second-pos   3,
-                                          :limit-letter [\a]},
-                             :pwd        "cbcde"})
+  (toboggan-pwd-validity-check {:pwd-policy {:first-position  1,
+                                             :second-position 3,
+                                             :limit-letter    [\a]},
+                                :pwd        "cbcde"})
   #_=> false
 
-  (Tob-auth-pwd-valid-check {:pwd-policy {:first-pos    1,
-                                          :second-pos   3,
-                                          :limit-letter [\a]},
-                             :pwd        "abade"})
+  (toboggan-pwd-validity-check {:pwd-policy {:first-position  1,
+                                             :second-position 3,
+                                             :limit-letter    [\a]},
+                                :pwd        "abade"})
   #_=> false
 
-  (Tob-valid-pwd-cnt ["1-3 a: abcde"
-                      "1-3 b: cdefg"
-                      "2-9 c: ccccccccc"])
+  (toboggan-valid-pwd-cnt ["1-3 a: abcde"
+                           "1-3 b: cdefg"
+                           "2-9 c: ccccccccc"])
   #_=> 1
 
-  (Tob-valid-pwd-cnt pwd-db-s)
+  (toboggan-valid-pwd-cnt pwd-db-s)
   #_=> 690
 
   )
