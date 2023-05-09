@@ -48,8 +48,8 @@
 
 (comment
   ;;------------------------------data------------------------------------------
-  (do (def sample-map-s (file->seq "aoc2020/day3/input-sample.txt"))
-    sample-map-s)
+  (do (def sample-grid-s (file->seq "aoc2020/day3/input-sample.txt"))
+    sample-grid-s)
   #_=> ["..##......."
         "#...#...#.."
         ".#....#..#."
@@ -63,8 +63,8 @@
         ".#..#...#.#"]
 
 
-  (do (def entry-map-s (file->seq "aoc2020/day3/input.txt"))
-    entry-map-s)
+  (do (def grid-s (file->seq "aoc2020/day3/input.txt"))
+    grid-s)
   #_=> ["...#.....#.......##......#....."
         "...#..................#........"
         "....##....#.......#............"
@@ -104,10 +104,10 @@
   #_=> 1
 
 
-  (total-tree-enctr-cnt sample-map, :right-slp 3, :down-slp 1)
+  (total-tree-enctr-cnt sample-grid-s, :right-slp 3, :down-slp 1)
   #_=> 7
 
-  (total-tree-enctr-cnt entry-map, :right-slp 3, :down-slp 1)
+  (total-tree-enctr-cnt grid-s, :right-slp 3, :down-slp 1)
   #_=> 220
 
 
@@ -123,10 +123,10 @@
                         "######."])
   #_=> 2
 
-  (tree-enctr-multiply sample-map-s)
+  (tree-enctr-multiply sample-grid-s)
   #_=> 336
 
-  (tree-enctr-multiply entry-map-s)
+  (tree-enctr-multiply grid-s)
   #_=> 2138320800
 
   )
