@@ -2,11 +2,11 @@
   (:require [aoc2020.util :refer [file->seq]]))
 
 
-(defn tob-slope-down
+(defn toboggan-slope-down
   [row-size down-slp]
   (rest (range 0 row-size down-slp)))
 
-(defn tob-slope-right
+(defn toboggan-slope-right
   [col-size right-slp row-size down-slp]
   (let [num-of-stops (- row-size down-slp)]
     (->> (iterate (fn [col]
@@ -27,11 +27,13 @@
 (defn total-tree-enctr-cnt
   [map-s & {:keys [right-slp down-slp]}]
   (let [col-size (count (get map-s 1))
-        row-size (count map-s)]
+        row-size (count map-s)
+        cur-row  (toboggan-slope-down row-size down-slp)
+        cur-col  (toboggan-slope-right col-size right-slp row-size down-slp)]
     (->> (mapv (fn [cur-row cur-col]
                  (tree-enctr? cur-row cur-col map-s))
-           (tob-slope-down row-size down-slp)
-           (tob-slope-right col-size right-slp row-size down-slp))
+           cur-row
+           cur-col)
       (remove false?)
       (count))))
 
