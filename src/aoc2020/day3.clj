@@ -3,48 +3,44 @@
 
 
 (defn toboggan-slope-down
-  [row-size down-slp]
-  (rest (range 0 row-size down-slp)))
+  [down-slp]
+  (take-nth down-slp (range)))
 
 (defn toboggan-slope-right
-  [col-size right-slp row-size down-slp]
-  (let [num-of-stops (- row-size down-slp)]
-    (->> (iterate (fn [col]
-                    (-> col
-                      (+ right-slp)
-                      (mod col-size))) right-slp)
-      (take num-of-stops))))
+  [right-slp]
+  (take-nth right-slp (range)))
 
 (defn tree-enctr?
-  [cur-row cur-col map-s]
-  (let [coord (-> map-s
-                (get cur-row)
-                (get cur-col))]
+  [grid-s row col]
+  (let [col-size (count (get grid-s 1))
+        cur-col  (mod col col-size)
+        coord    (-> grid-s
+                   (get row)
+                   (get cur-col))]
     (if (= coord \#)
       true
       false)))
 
 (defn total-tree-enctr-cnt
-  [map-s & {:keys [right-slp down-slp]}]
-  (let [col-size (count (get map-s 1))
-        row-size (count map-s)
-        cur-row  (toboggan-slope-down row-size down-slp)
-        cur-col  (toboggan-slope-right col-size right-slp row-size down-slp)]
+  [grid-s & {:keys [down-slp right-slp]}]
+  (let [row-size (count grid-s)
+        cur-row  (take row-size (toboggan-slope-down down-slp))
+        cur-col  (take row-size (toboggan-slope-right right-slp))]
     (->> (mapv (fn [cur-row cur-col]
-                 (tree-enctr? cur-row cur-col map-s))
+                 (tree-enctr? grid-s cur-row cur-col))
            cur-row
            cur-col)
       (remove false?)
       (count))))
 
 (defn tree-enctr-multiply
-  [map-s]
+  [grid-s]
   (->> (vector
-         (total-tree-enctr-cnt map-s :right-slp 1 :down-slp 1)
-         (total-tree-enctr-cnt map-s :right-slp 3 :down-slp 1)
-         (total-tree-enctr-cnt map-s :right-slp 5 :down-slp 1)
-         (total-tree-enctr-cnt map-s :right-slp 7 :down-slp 1)
-         (total-tree-enctr-cnt map-s :right-slp 1 :down-slp 2))
+         (total-tree-enctr-cnt grid-s :right-slp 1 :down-slp 1)
+         (total-tree-enctr-cnt grid-s :right-slp 3 :down-slp 1)
+         (total-tree-enctr-cnt grid-s :right-slp 5 :down-slp 1)
+         (total-tree-enctr-cnt grid-s :right-slp 7 :down-slp 1)
+         (total-tree-enctr-cnt grid-s :right-slp 1 :down-slp 2))
     (reduce *)))
 
 
@@ -81,15 +77,17 @@
   ;;------------------------------function eval part 1------------------------------------------
   ;;tobbogan moving at slope right 3 down 1, calculate total tree encounter
 
-  (tob-slope-down 5 1)
-  #_=> (1 2 3 4)
-  (tob-slope-down 5 2)
-  #_=> (2 4)
+  ;;create infinite lazy seq for row and column coordination
+  ;;Based on the coordination, find if the position has a tree or not, return boolean value
+  ;;remove false value and count the true value
 
-  (tob-slope-right 10 3 5 1)
-  #_=> (3 6 9 2)
-  (tob-slope-right 15 7 5 2)
-  #_=> (7 14 6)
+  (take 10 (toboggan-slope-right 2))
+  #_=> (0 2 4 6 8 10 12 14 16 18)
+  (take 10 (toboggan-slope-right 5))
+  #_=> (0 5 10 15 20 25 30 35 40 45)
+
+  (take 10 (toboggan-slope-down 3))
+  #_=> (0 3 6 9 12 15 18 21 24 27)
 
   (tree-enctr? 1 3 ["..#.#.#"
                     ".#.##.#"
@@ -113,8 +111,12 @@
   #_=> 220
 
 
+
   ;;-----------------------function eval part 2----------------------------------
   ;;calculate the product by multiplying the tree encounter using different slp
+
+  ;;Parse different right and down slopes as args into tree-cnt function
+  ;;Multiply the results
 
   (tree-enctr-multiply ["###.#.#"
                         ".####.#"
