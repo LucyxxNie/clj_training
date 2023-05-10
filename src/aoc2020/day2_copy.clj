@@ -2,7 +2,7 @@
   (:require [aoc2020.util :refer [file->seq]])
   (:require [clojure.string :as str]))
 
-(defn parsing-policy-pwd
+(defn parse-policy-pwd
   [policy-pwd-str]
   (let [clean-pwd    (-> policy-pwd-str
                        (str/replace #"[^a-zA-Z0-9]" " ")
@@ -17,26 +17,26 @@
      :pwd        pwd}))
 
 (defn sled-rental-pwd-valid?
-  [{:keys                                [pwd]
+  [{pwd                                  :pwd
     {:keys [limit1 limit2 limit-letter]} :pwd-policy}]
   (let [pwd-letter-cnt (frequencies (seq pwd))
         {letter-freq limit-letter :or {letter-freq 0}} pwd-letter-cnt]
     (<= limit1 letter-freq limit2)))
 
 (defn toboggan-pwd-valid?
-  [{:keys                                [pwd]
+  [{pwd                                  :pwd
     {:keys [limit1 limit2 limit-letter]} :pwd-policy}]
-  (let [fir-letter (get pwd (- limit1 1))
-        sec-letter (get pwd (- limit2 1))
-        fir-eql?   (= fir-letter limit-letter)
-        sec-eql?   (= sec-letter limit-letter)]
-    (or (and fir-eql? (not sec-eql?))
-      (and sec-eql? (not fir-eql?)))))
+  (let [pos1        (get pwd (- limit1 1))
+        pos2        (get pwd (- limit2 1))
+        pos1-match? (= pos1 limit-letter)
+        pos2-match? (= pos2 limit-letter)]
+    (or (and pos1-match? (not pos2-match?))
+      (and pos2-match? (not pos1-match?)))))
 
 (defn valid-pwd-cnt
   [pwd-db-s validity-check?]
   (->> pwd-db-s
-    (mapv parsing-policy-pwd)
+    (mapv parse-policy-pwd)
     (mapv validity-check?)
     (remove false?)
     (count)))
@@ -69,10 +69,10 @@
   ;;remove all the invalid (false) passwords, count the number of valid passwords
 
 
-  (parsing-policy-pwd "1-2@! a: #$@%*()   dsdsas")
+  (parse-policy-pwd "1-2@! a: #$@%*()   dsdsas")
   #_=> {:pwd-policy {:limit1 1, :limit2 2, :limit-letter \a}, :pwd "dsdsas"}
 
-  (mapv parsing-policy-pwd sample-pwd-s)
+  (mapv parse-policy-pwd sample-pwd-s)
   #_=> [{:pwd-policy {:limit1 1, :limit2 3, :limit-letter (\a)}, :pwd "abcde"}
         {:pwd-policy {:limit1 1, :limit2 3, :limit-letter (\b)}, :pwd "cdefg"}
         {:pwd-policy {:limit1 2, :limit2 9, :limit-letter (\c)}, :pwd "ccccccccc"}]

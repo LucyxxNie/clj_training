@@ -1,35 +1,32 @@
 (ns aoc2020.day3
   (:require [aoc2020.util :refer [file->seq]]))
 
-
-(defn toboggan-slope-down
-  [down-slp]
-  (take-nth down-slp (range)))
-
-(defn toboggan-slope-right
-  [right-slp]
-  (take-nth right-slp (range)))
+(defn coordination
+  [down-slope right-slope]
+  (let [row-s (take-nth down-slope (range))
+        col-s (take-nth right-slope (range))]
+    (map (fn [row-s col-s] [row-s col-s])
+      row-s col-s)))
 
 (defn tree-enctr?
-  [grid-s row col]
+  [grid-s [row col]]
   (let [col-size (count (get grid-s 1))
         cur-col  (mod col col-size)
-        coord    (-> grid-s
+        pos      (-> grid-s
                    (get row)
                    (get cur-col))]
-    (if (= coord \#)
+    (if (= pos \#)
       true
       false)))
 
 (defn total-tree-enctr-cnt
-  [grid-s & {:keys [down-slp right-slp]}]
+  [grid-s & {:keys [right-slp down-slp]}]
   (let [row-size (count grid-s)
-        cur-row  (take row-size (toboggan-slope-down down-slp))
-        cur-col  (take row-size (toboggan-slope-right right-slp))]
-    (->> (mapv (fn [cur-row cur-col]
-                 (tree-enctr? grid-s cur-row cur-col))
-           cur-row
-           cur-col)
+        coord    (coordination down-slp right-slp)]
+    (->> coord
+      (take row-size)
+      (mapv (fn [pos]
+              (tree-enctr? grid-s pos)))
       (remove false?)
       (count))))
 
@@ -81,21 +78,19 @@
   ;;Based on the coordination, find if the position has a tree or not, return boolean value
   ;;remove false value and count the true value
 
-  (take 10 (toboggan-slope-right 2))
-  #_=> (0 2 4 6 8 10 12 14 16 18)
-  (take 10 (toboggan-slope-right 5))
-  #_=> (0 5 10 15 20 25 30 35 40 45)
+  (take 5 (coordination 1 3))
+  #_=> ([0 0] [1 3] [2 6] [3 9] [4 12])
 
-  (take 10 (toboggan-slope-down 3))
-  #_=> (0 3 6 9 12 15 18 21 24 27)
+  (take 5 (coordination 2 5))
+  #_=> ([0 0] [2 5] [4 10] [6 15] [8 20])
 
-  (tree-enctr? 1 3 ["..#.#.#"
-                    ".#.##.#"
-                    "...###."])
+  (tree-enctr? ["..#.#.#"
+                ".#.##.#"
+                "...###."] [1 3])
   #_=> true
-  (tree-enctr? 2 6 ["..#.#.#"
-                    ".#.##.#"
-                    "...###."])
+  (tree-enctr? ["..#.#.#"
+                ".#.##.#"
+                "...###."] [2 6])
   #_=> false
 
   (total-tree-enctr-cnt ["..#.#.#"
@@ -110,8 +105,6 @@
   (total-tree-enctr-cnt grid-s, :right-slp 3, :down-slp 1)
   #_=> 220
 
-
-
   ;;-----------------------function eval part 2----------------------------------
   ;;calculate the product by multiplying the tree encounter using different slp
 
@@ -121,7 +114,7 @@
   (tree-enctr-multiply ["###.#.#"
                         ".####.#"
                         "######."])
-  #_=> 2
+  #_=> 48
 
   (tree-enctr-multiply sample-grid-s)
   #_=> 336
