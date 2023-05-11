@@ -5,10 +5,10 @@
 (defn parse-passport-data
   [passport-data]
   (->> (-> passport-data
-         (str/split #"\s+"))
-    (mapv (fn [str] (str/split str #":")))
-    (mapv (fn [[k v]] [(keyword k) v]))
-    (into {})))
+           (str/split #"\s+"))
+       (mapv (fn [str] (str/split str #":")))
+       (mapv (fn [[k v]] [(keyword k) v]))
+       (into {})))
 
 (defn required-field-present?
   [{:keys [byr iyr eyr hgt hcl ecl pid]
@@ -18,9 +18,23 @@
   (and byr iyr eyr hgt hcl ecl pid))
 
 
+(defmulti field-data-valid?
+          (fn [passport-data] (first passport-data)))
 
-(defn hgt-valid?
-  [hgt]
+(defmethod field-data-valid?
+  :byr [[_ byr]]
+  (<= 1920 (parse-long byr) 2002))
+
+(defmethod field-data-valid?
+  :iyr [[_ iyr]]
+  (<= 2010 (parse-long iyr) 2020))
+
+(defmethod field-data-valid?
+  :eyr [[_ eyr]]
+  (<= 2020 (parse-long eyr) 2030))
+
+(defmethod field-data-valid?
+  :hgt [[_ hgt]]
   (let [[hgt-str unit] (str/split hgt #"(?=[a-z])" 2)
         hgt (parse-long hgt-str)]
     (case unit
@@ -28,59 +42,59 @@
       "in" (<= 59 hgt 76)
       false)))
 
-(defn hcl-valid?
-  [hcl]
+(defmethod field-data-valid?
+  :hcl [[_ hcl]]
   (let [chars       (rest hcl)
         filter-char (str/replace chars #"[^a-f0-9]" "")]
     (and (= (first hcl) \#)
-      (= (count filter-char) 6))))
+         (= (count filter-char) 6))))
+
+(defmethod field-data-valid?
+  :ecl [[_ ecl]]
+  (contains? #{"amb" "blu" "brn" "gry" "grn" "hzl" "oth"} ecl))
+
+(defmethod field-data-valid?
+  :pid [[_ pid]]
+  (->> pid
+       (re-matches #"\d+")
+       (count)
+       (= 9)))
+
+(defmethod field-data-valid?
+  :cid [_]
+  true)
+
+(defmethod field-data-valid?
+  :default [_]
+  false)
 
 (defn passport-data-valid?
-  [{:keys [byr iyr eyr hgt hcl ecl pid]
-    :or   {byr "0", iyr "0", eyr "0",
-           hgt "0cm", hcl "#ABCDEF" ecl "non"
-           pid "0"}}]
-  (let [ecl-set    #{"amb" "blu" "brn" "gry" "grn" "hzl" "oth"}
-        byr-valid? (<= 1920 (parse-long byr) 2002)
-        iyr-valid? (<= 2010 (parse-long iyr) 2020)
-        eyr-valid? (<= 2020 (parse-long eyr) 2030)
-        hgt-valid? (hgt-valid? hgt)
-        hcl-valid? (hcl-valid? hcl)
-        ecl-valid? (contains? ecl-set ecl)
-        pid-valid? (->> pid
-                     (re-matches #"\d+")
-                     (count)
-                     (= 9))]
-    (and
-      byr-valid?
-      iyr-valid?
-      eyr-valid?
-      hgt-valid?
-      hcl-valid?
-      ecl-valid?
-      pid-valid?)))
+  [passport-map]
+  (let [all-field-present? (required-field-present? passport-map)
+        all-data-valid?    (every? true? (mapv field-data-valid? passport-map))]
+    (and all-field-present? all-data-valid?)))
 
 (defn valid-passport-cnt
   [passport-data-s passport-valid?]
   (->> passport-data-s
-    (mapv parse-passport-data)
-    (mapv passport-valid?)
-    (remove false?)
-    (count)))
+       (mapv parse-passport-data)
+       (mapv passport-valid?)
+       (remove false?)
+       (count)))
 
 
 
 (comment
   ;;----------------------------data---------------------------------------------------
   (do (def sample-passport-data-s (file->seq2 "aoc2020/day4/input-sample.txt"))
-    sample-passport-data-s)
+      sample-passport-data-s)
   #_=> ["ecl:gry pid:860033327 eyr:2020 hcl:#fffffd\nbyr:1937 iyr:2017 cid:147 hgt:183cm"
         "iyr:2013 ecl:amb cid:350 eyr:2023 pid:028048884\nhcl:#cfa07d byr:1929"
         "hcl:#ae17e1 iyr:2013\neyr:2024\necl:brn pid:760753108 byr:1931\nhgt:179cm"
         "hcl:#cfa07d eyr:2025 pid:166559648\niyr:2011 ecl:brn hgt:59in"]
 
   (do (def passport-data-s (file->seq2 "aoc2020/day4/input.txt"))
-    passport-data-s)
+      passport-data-s)
   #_=> ["byr:2024 iyr:2016\neyr:2034 ecl:zzz pid:985592671 hcl:033b48\nhgt:181 cid:166"
         "hgt:66cm\npid:152cm\nhcl:cfb18a eyr:1947\nbyr:2020 ecl:zzz iyr:2029"
         "ecl:gry hcl:#888785 eyr:2023 cid:63\niyr:2019 hgt:177cm\npid:656793259"
@@ -101,11 +115,6 @@
   #_=> {:ecl "gry", :pid "860033327", :eyr "2020", :hcl "#fffffd",
         :byr "1937", :iyr "2017", :cid "147", :hgt "183cm"}
 
-  (parse-passport-data "ecl:gry hcl:#888785 eyr:2023 cid:63
-                        \niyr:2019 hgt:177cm\npid:656793259")
-  #_=> {:ecl "gry", :hcl "#888785", :eyr "2023",
-        :cid "63", :iyr "2019", :hgt "177cm", :pid "656793259"}
-
 
   (passport-valid? {:ecl "gry", :pid "8600", :eyr "2020", :hcl "#fffffd",
                     :byr "1937", :iyr "2017", :cid "147", :hgt "183cm"})
@@ -121,11 +130,11 @@
   #_=> 1
 
   (valid-passport-cnt sample-passport-data-s
-    required-field-present?)
+                      required-field-present?)
   #_=> 2
 
   (valid-passport-cnt passport-data-s
-    required-field-present?)
+                      required-field-present?)
   #_=> 247
 
 
@@ -133,27 +142,15 @@
 
   ;;validation for each required field: byr iyr eyr hgt hcl ecl pid
 
-  ;;Built two function to validate height and hair color data,
-  ;;For height data, separate the input by number and unit, then check if the number is
-  ;;in the range based on its unit
-  ;;For hair color data, separated the first and the rest of input and check if the first
-  ;;char is \# and filter out invalid chars and check if the valid input is 6.
-  ;;Parse the map into a validation function to check if the overall passport is valid
+  ;;Built a multimethods to validate the data for each required field
+  ;;check if all required fields in passport are present
+  ;;check if passport data for all fields are valid, if so, this would be a valid passport
   ;;Count the number of valid passports
 
-
-  (hgt-valid? "183cm")
+  (field-data-valid? [:eyr "2020"])
   #_=> true
-  (hgt-valid? "183in")
+  (field-data-valid? [:hgt "170in"])
   #_=> false
-
-  (hcl-valid? "#12ab34")
-  #_=> true
-  (hcl-valid? "123456A")
-  #_=> false
-
-  (str/replace "123ABC" #"[^a-f0-9]" "")
-
 
   (passport-data-valid? {:eyr "2029", :ecl "blu", :cid "129", :byr "1989",
                          :iyr "2014", :pid "896056539", :hcl "#a97842", :hgt "165cm"})
@@ -163,11 +160,11 @@
   #_=> false
 
   (valid-passport-cnt sample-passport-data-s
-    passport-data-valid?)
+                      passport-data-valid?)
   #_=> 2
 
   (valid-passport-cnt passport-data-s
-    passport-data-valid?)
-  #_=> 152
+                      passport-data-valid?)
+  #_=> 145
 
   )
