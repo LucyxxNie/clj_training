@@ -126,7 +126,8 @@
 
   (valid-passport-cnt ["ecl:gry hcl:#888785 eyr:2023 cid:63\niyr:2019 hgt:177cm\npid:656793259"
                        "pid:#5e832a\necl:dne hcl:#7d3b0c eyr:1928 hgt:61cm iyr:1936 cid:241"
-                       "hcl:#888785 ecl:oth eyr:2025\npid:597580472\niyr:2017 hgt:187cm byr:1957 cid:247"])
+                       "hcl:#888785 ecl:oth eyr:2025\npid:597580472\niyr:2017 hgt:187cm byr:1957 cid:247"]
+                      required-field-present?)
   #_=> 1
 
   (valid-passport-cnt sample-passport-data-s
