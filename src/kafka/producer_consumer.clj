@@ -49,25 +49,20 @@
   (.commitAsync consumer))
 
 (defn receive-msg-single-thread
-  [consumer]
-  (let [topic "example-topic"]
-    (consumer-subscribe! consumer topic)
-    (let [records (.poll consumer (Duration/ofMillis 100000))]
-      (doseq [record records]
-        (println "Message: " (.value record))
-        (str "Msg: " (.value record))))))
+  [consumer topic]
+  (consumer-subscribe! consumer topic)
+  (let [records (.poll consumer (Duration/ofMillis 100000))]
+    (mapv #(str "Msg: " (.value %)) records)))
 
 (defn receive-msg-multi-thread
   [consumer]
-  (let [topic    "example-topic"
-        state    (atom false)]
+  (let [topic "example-topic"
+        state (atom false)]
     (try
       (consumer-subscribe! consumer topic)
       (while (not @state)
         (let [records (.poll consumer (Duration/ofMillis 1))]
-          (doseq [record records]
-            (println "Message: " (.value record))
-            (str "Message: " (.value record)))))
+          (mapv #(str "Message: " (.value %)) records)))
       (catch WakeupException e
         (when-not @state
           (throw e)))
@@ -118,8 +113,7 @@
                        "Parse the topic consumer wants to listen")
   #_=> nil
 
-  (receive-msg-single-thread (build-consumer consumer-properties))
-  ;Message:Message content
-  #_ => nil
+  (receive-msg-single-thread (build-consumer consumer-properties) "example-topic")
+  #_=> ["Msg: Message content"]
 
   )
