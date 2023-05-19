@@ -76,17 +76,12 @@
   (build-consumer consumer-properties "example-topic")
   #_=> nil
 
-  (new-msg "topic" "key" "value-msg")
-  #_=> #object[org.apache.kafka.clients.producer.ProducerRecord
-               0x4a7a2ec1
-               "ProducerRecord(topic=topic, partition=null, headers=RecordHeaders(headers = [], isReadOnly = false), key=key, value=value-msg, timestamp=null)"]
-
   (send-msg! (build-producer producer-properties) "Message content")
   #_=> #object[org.apache.kafka.clients.producer.internals.FutureRecordMetadata
                0x4bd4dad9
                "org.apache.kafka.clients.producer.internals.FutureRecordMetadata@4bd4dad9"]
 
-  (receive-msg (build-consumer consumer-properties "example-topic"))
+  (receive-messages (build-consumer consumer-properties "example-topic"))
   #_=> ["Msg: Message content"]
 
   )

@@ -4,89 +4,96 @@
     (java.time Duration)
     (java.net InetAddress)
     (org.apache.kafka.common.serialization StringSerializer StringDeserializer)
-    (org.apache.kafka.clients.producer KafkaProducer ProducerRecord)
+    (org.apache.kafka.clients.producer ProducerRecord)
     (org.apache.kafka.clients.consumer KafkaConsumer)))
 
+(def producer-properties
+  (atom {"client.id",         (.getHostName (InetAddress/getLocalHost))
+         "group.id",          "group1"
+         "bootstrap.servers", "localhost:9092"
+         "key.serializer"     StringSerializer
+         "value.serializer"   StringSerializer}))
+
+(def consumer-properties
+  (atom {"client.id",         (.getHostName (InetAddress/getLocalHost))
+         "group.id",          "group1"
+         "bootstrap.servers", "localhost:9092"
+         "key.deserializer"   StringDeserializer
+         "value.deserializer" StringDeserializer}))
+
+
 (defn build-producer
-  [producer-properties]
-  (KafkaProducer. producer-properties))
+  []
+  (KafkaProducer. @producer-properties))
 
 (defn build-consumer
-  [consumer-properties topic]
-  (let [consumer        (KafkaConsumer. consumer-properties)
-        subscribe-topic (.subscribe consumer [topic])]
+  [topic]
+  (let [consumer         (KafkaConsumer. @consumer-properties)
+        _subscribe-topic (.subscribe consumer [topic])]
     consumer))
 
-(defn new-msg
-  [topic key msg]
-  (ProducerRecord. topic key msg))
+(def producer (atom (build-producer)))
+
+(def consumer (atom (build-consumer "example-topic")))
 
 (defn send-msg!
   [producer msg-value]
   (let [producer-configuration "example-topic"
-        msg                    (new-msg producer-configuration "msg" msg-value)
-        sending-msg            (.send producer msg)]
-    (println "Msg sent successfully!")
-    sending-msg))
+        msg                    (ProducerRecord. producer-configuration "msg" msg-value)
+        send-msg               (.send producer msg)]
+    send-msg))
 
-(defn receive-msg
+(defn receive-messages
   [consumer]
-  (let [records (.poll consumer (Duration/ofMillis 100000))]
-    (->> records
-         (mapv (fn [record]
-                 (str (.value record)))))))
-
+  (let [records  (.poll consumer (Duration/ofMillis 100000))
+        messages (->> records
+                      (mapv (fn [record]
+                              (str (.value record)))))]
+    messages))
 
 (comment
-  ;;--------------------Kafka producer/consumer properties------------------------
-  (do (def producer-properties
-        {"client.id",         (.getHostName (InetAddress/getLocalHost))
-         "group.id",          "group1"
-         "bootstrap.servers", "localhost:9092"
-         "key.serializer"     StringSerializer
-         "value.serializer"   StringSerializer})
-      producer-properties)
 
+  ;;------------------------------function evaluation----------------------------------
+  (deref producer-properties)
   #_=> {"client.id"         "m-p7p1q34c6p",
         "group.id"          "group1",
         "bootstrap.servers" "localhost:9092",
         "key.serializer"    org.apache.kafka.common.serialization.StringSerializer,
         "value.serializer"  org.apache.kafka.common.serialization.StringSerializer}
 
-  (do (def consumer-properties
-        {"client.id",         (.getHostName (InetAddress/getLocalHost))
-         "group.id",          "group1"
-         "bootstrap.servers", "localhost:9092"
-         "key.deserializer"   StringDeserializer
-         "value.deserializer" StringDeserializer})
-      consumer-properties)
-
+  (deref consumer-properties)
   #_=> {"client.id"          "m-p7p1q34c6p",
         "group.id"           "group1",
         "bootstrap.servers"  "localhost:9092",
         "key.deserializer"   org.apache.kafka.common.serialization.StringDeserializer,
         "value.deserializer" org.apache.kafka.common.serialization.StringDeserializer}
 
-  ;;------------------------------function evaluation----------------------------------
-  (build-producer producer-properties)
-  #_=> #object[org.apache.kafka.clients.producer.KafkaProducer
-               0x6e7e1683
-               "org.apache.kafka.clients.producer.KafkaProducer@6e7e1683"]
+  (build-producer)
+  #_=> #_#object[org.apache.kafka.clients.producer.KafkaProducer
+                 0xd7d9d44
+                 "org.apache.kafka.clients.producer.KafkaProducer@d7d9d44"]
 
-  (build-consumer consumer-properties "example-topic")
-  #_=> nil
+  (build-consumer "example-topic")
+  #_=> #_#object[org.apache.kafka.clients.consumer.KafkaConsumer
+                 0x5e1f9219
+                 "org.apache.kafka.clients.consumer.KafkaConsumer@5e1f9219"]
 
-  (new-msg "topic" "key" "value-msg")
-  #_=> #object[org.apache.kafka.clients.producer.ProducerRecord
-               0x4a7a2ec1
-               "ProducerRecord(topic=topic, partition=null, headers=RecordHeaders(headers = [], isReadOnly = false), key=key, value=value-msg, timestamp=null)"]
+  (deref producer)
+  #_=> #_#object[org.apache.kafka.clients.producer.KafkaProducer
+                 0x5ed9f0d7
+                 "org.apache.kafka.clients.producer.KafkaProducer@5ed9f0d7"]
 
-  (send-msg! (build-producer producer-properties) "Message content")
-  #_=> #object[org.apache.kafka.clients.producer.internals.FutureRecordMetadata
-               0x4bd4dad9
-               "org.apache.kafka.clients.producer.internals.FutureRecordMetadata@4bd4dad9"]
+  (deref consumer)
+  #_=> #_#object [org.apache.kafka.clients.consumer.KafkaConsumer
+                  0x10d39092
+                  "org.apache.kafka.clients.consumer.KafkaConsumer@10d39092"]
 
-  (receive-msg (build-consumer consumer-properties "example-topic"))
+  (send-msg! (build-producer) "Message content")
+  #_=> #_#object[org.apache.kafka.clients.producer.internals.FutureRecordMetadata
+                 0x4bd4dad9
+                 "org.apache.kafka.clients.producer.internals.FutureRecordMetadata@4bd4dad9"]
+
+  (receive-messages (build-consumer "example-topic"))
   #_=> ["Msg: Message content"]
 
   )
