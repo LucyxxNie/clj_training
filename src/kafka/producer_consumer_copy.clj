@@ -1,4 +1,4 @@
-(ns kafka.producer-consumer
+(ns kafka.producer-consumer-copy
   (:gen-class)
   (:import
     (java.time Duration)
