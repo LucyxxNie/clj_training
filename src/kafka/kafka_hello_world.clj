@@ -31,9 +31,11 @@
         _subscribe-topic (.subscribe consumer [topic])]
     consumer))
 
-(def producer (atom (build-producer)))
-
-(def consumer (atom (build-consumer "example-topic")))
+(def producer-consumer
+  (let [producer          (build-producer)
+        consumer          (build-consumer "example-topic")
+        producer-consumer (atom [producer consumer])]
+    producer-consumer))
 
 (defn send-msg!
   [producer msg-value]
@@ -54,16 +56,16 @@
 
   ;;------------------------------function evaluation----------------------------------
   (deref properties)
-  #_ => {:producer {"client.id" "m-p7p1q34c6p",
-                    "group.id" "group1",
-                    "bootstrap.servers" "localhost:9092",
-                    "key.serializer" org.apache.kafka.common.serialization.StringSerializer,
-                    "value.serializer" org.apache.kafka.common.serialization.StringSerializer},
-         :consumer {"client.id" "m-p7p1q34c6p",
-                    "group.id" "group1",
-                    "bootstrap.servers" "localhost:9092",
-                    "key.deserializer" org.apache.kafka.common.serialization.StringDeserializer,
-                    "value.deserializer" org.apache.kafka.common.serialization.StringDeserializer}}
+  #_=> {:producer {"client.id"         "m-p7p1q34c6p",
+                   "group.id"          "group1",
+                   "bootstrap.servers" "localhost:9092",
+                   "key.serializer"    org.apache.kafka.common.serialization.StringSerializer,
+                   "value.serializer"  org.apache.kafka.common.serialization.StringSerializer},
+        :consumer {"client.id"          "m-p7p1q34c6p",
+                   "group.id"           "group1",
+                   "bootstrap.servers"  "localhost:9092",
+                   "key.deserializer"   org.apache.kafka.common.serialization.StringDeserializer,
+                   "value.deserializer" org.apache.kafka.common.serialization.StringDeserializer}}
 
 
   (build-producer)
@@ -76,15 +78,14 @@
                  0x5e1f9219
                  "org.apache.kafka.clients.consumer.KafkaConsumer@5e1f9219"]
 
-  (deref producer)
-  #_=> #_#object[org.apache.kafka.clients.producer.KafkaProducer
-                 0x5ed9f0d7
-                 "org.apache.kafka.clients.producer.KafkaProducer@5ed9f0d7"]
+  (deref producer-consumer)
+  #_=> #_[#object[org.apache.kafka.clients.producer.KafkaProducer
+                  0x301c93e1
+                  "org.apache.kafka.clients.producer.KafkaProducer@301c93e1"]
+          #object[org.apache.kafka.clients.consumer.KafkaConsumer
+                  0x4f2f21e6
+                  "org.apache.kafka.clients.consumer.KafkaConsumer@4f2f21e6"]]
 
-  (deref consumer)
-  #_=> #_#object [org.apache.kafka.clients.consumer.KafkaConsumer
-                  0x10d39092
-                  "org.apache.kafka.clients.consumer.KafkaConsumer@10d39092"]
 
   (send-msg! (build-producer) "Message content")
   #_=> #_#object[org.apache.kafka.clients.producer.internals.FutureRecordMetadata
