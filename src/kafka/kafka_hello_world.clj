@@ -8,16 +8,16 @@
     (org.apache.kafka.clients.consumer KafkaConsumer)))
 
 (def properties
-  (atom {:producer {"client.id",         (.getHostName (InetAddress/getLocalHost))
-                    "group.id",          "group1"
-                    "bootstrap.servers", "localhost:9092"
-                    "key.serializer"     StringSerializer
-                    "value.serializer"   StringSerializer}
-         :consumer {"client.id",         (.getHostName (InetAddress/getLocalHost))
-                    "group.id",          "group1"
-                    "bootstrap.servers", "localhost:9092"
-                    "key.deserializer"   StringDeserializer
-                    "value.deserializer" StringDeserializer}}))
+  (atom {:producer-config {"client.id",         (.getHostName (InetAddress/getLocalHost))
+                           "group.id",          "group1"
+                           "bootstrap.servers", "localhost:9092"
+                           "key.serializer"     StringSerializer
+                           "value.serializer"   StringSerializer}
+         :consumer-config {"client.id",         (.getHostName (InetAddress/getLocalHost))
+                           "group.id",          "group1"
+                           "bootstrap.servers", "localhost:9092"
+                           "key.deserializer"   StringDeserializer
+                           "value.deserializer" StringDeserializer}}))
 
 
 
@@ -56,16 +56,16 @@
 
   ;;------------------------------function evaluation----------------------------------
   (deref properties)
-  #_=> {:producer {"client.id"         "m-p7p1q34c6p",
-                   "group.id"          "group1",
-                   "bootstrap.servers" "localhost:9092",
-                   "key.serializer"    org.apache.kafka.common.serialization.StringSerializer,
-                   "value.serializer"  org.apache.kafka.common.serialization.StringSerializer},
-        :consumer {"client.id"          "m-p7p1q34c6p",
-                   "group.id"           "group1",
-                   "bootstrap.servers"  "localhost:9092",
-                   "key.deserializer"   org.apache.kafka.common.serialization.StringDeserializer,
-                   "value.deserializer" org.apache.kafka.common.serialization.StringDeserializer}}
+  #_=> {:producer-config {"client.id"         "m-p7p1q34c6p",
+                          "group.id"          "group1",
+                          "bootstrap.servers" "localhost:9092",
+                          "key.serializer"    org.apache.kafka.common.serialization.StringSerializer,
+                          "value.serializer"  org.apache.kafka.common.serialization.StringSerializer},
+        :consumer-config {"client.id"          "m-p7p1q34c6p",
+                          "group.id"           "group1",
+                          "bootstrap.servers"  "localhost:9092",
+                          "key.deserializer"   org.apache.kafka.common.serialization.StringDeserializer,
+                          "value.deserializer" org.apache.kafka.common.serialization.StringDeserializer}}
 
 
   (build-producer)
