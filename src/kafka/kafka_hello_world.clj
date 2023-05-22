@@ -4,31 +4,30 @@
     (java.time Duration)
     (java.net InetAddress)
     (org.apache.kafka.common.serialization StringSerializer StringDeserializer)
-    (org.apache.kafka.clients.producer ProducerRecord)
+    (org.apache.kafka.clients.producer KafkaProducer ProducerRecord)
     (org.apache.kafka.clients.consumer KafkaConsumer)))
 
-(def producer-properties
-  (atom {"client.id",         (.getHostName (InetAddress/getLocalHost))
-         "group.id",          "group1"
-         "bootstrap.servers", "localhost:9092"
-         "key.serializer"     StringSerializer
-         "value.serializer"   StringSerializer}))
+(def properties
+  (atom {:producer {"client.id",         (.getHostName (InetAddress/getLocalHost))
+                    "group.id",          "group1"
+                    "bootstrap.servers", "localhost:9092"
+                    "key.serializer"     StringSerializer
+                    "value.serializer"   StringSerializer}
+         :consumer {"client.id",         (.getHostName (InetAddress/getLocalHost))
+                    "group.id",          "group1"
+                    "bootstrap.servers", "localhost:9092"
+                    "key.deserializer"   StringDeserializer
+                    "value.deserializer" StringDeserializer}}))
 
-(def consumer-properties
-  (atom {"client.id",         (.getHostName (InetAddress/getLocalHost))
-         "group.id",          "group1"
-         "bootstrap.servers", "localhost:9092"
-         "key.deserializer"   StringDeserializer
-         "value.deserializer" StringDeserializer}))
 
 
 (defn build-producer
   []
-  (KafkaProducer. @producer-properties))
+  (KafkaProducer. (get @properties :producer)))
 
 (defn build-consumer
   [topic]
-  (let [consumer         (KafkaConsumer. @consumer-properties)
+  (let [consumer         (KafkaConsumer. (get @properties :consumer))
         _subscribe-topic (.subscribe consumer [topic])]
     consumer))
 
