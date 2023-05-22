@@ -19,23 +19,20 @@
                            "key.deserializer"   StringDeserializer
                            "value.deserializer" StringDeserializer}}))
 
-
+(def clients (atom {:producer [] :consumer []}))
 
 (defn build-producer
   []
-  (KafkaProducer. (get @properties :producer)))
+  (let [producer (KafkaProducer. (get @properties :producer-config))
+        _        (swap! clients update :producer conj producer)]
+    producer))
 
 (defn build-consumer
-  [topic]
-  (let [consumer         (KafkaConsumer. (get @properties :consumer))
-        _subscribe-topic (.subscribe consumer [topic])]
+  []
+  (let [consumer (KafkaConsumer. (get @properties :consumer-config))
+        _        (.subscribe consumer ["example-topic"])
+        _        (swap! clients update :consumer conj consumer)]
     consumer))
-
-(def producer-consumer
-  (let [producer          (build-producer)
-        consumer          (build-consumer "example-topic")
-        producer-consumer (atom [producer consumer])]
-    producer-consumer))
 
 (defn send-msg!
   [producer msg-value]
@@ -68,31 +65,29 @@
                           "value.deserializer" org.apache.kafka.common.serialization.StringDeserializer}}
 
 
+
   (build-producer)
   #_=> #_#object[org.apache.kafka.clients.producer.KafkaProducer
-                 0xd7d9d44
-                 "org.apache.kafka.clients.producer.KafkaProducer@d7d9d44"]
-
-  (build-consumer "example-topic")
+                 0x7b8aebb5
+                 "org.apache.kafka.clients.producer.KafkaProducer@7b8aebb5"]
+  (build-consumer)
   #_=> #_#object[org.apache.kafka.clients.consumer.KafkaConsumer
-                 0x5e1f9219
-                 "org.apache.kafka.clients.consumer.KafkaConsumer@5e1f9219"]
+                 0x64be53b9
+                 "org.apache.kafka.clients.consumer.KafkaConsumer@64be53b9"]
+  (deref clients)
+  #_=> #_{:producer [#object[org.apache.kafka.clients.producer.KafkaProducer
+                             0xf5c23a0
+                             "org.apache.kafka.clients.producer.KafkaProducer@f5c23a0"]],
+          :consumer [#object[org.apache.kafka.clients.consumer.KafkaConsumer
+                             0xf4f0817
+                             "org.apache.kafka.clients.consumer.KafkaConsumer@f4f0817"]]}
 
-  (deref producer-consumer)
-  #_=> #_[#object[org.apache.kafka.clients.producer.KafkaProducer
-                  0x301c93e1
-                  "org.apache.kafka.clients.producer.KafkaProducer@301c93e1"]
-          #object[org.apache.kafka.clients.consumer.KafkaConsumer
-                  0x4f2f21e6
-                  "org.apache.kafka.clients.consumer.KafkaConsumer@4f2f21e6"]]
-
-
-  (send-msg! (build-producer) "Message content")
+  (send-msg! (get-in @clients [:producer 0]) "Message content")
   #_=> #_#object[org.apache.kafka.clients.producer.internals.FutureRecordMetadata
                  0x4bd4dad9
                  "org.apache.kafka.clients.producer.internals.FutureRecordMetadata@4bd4dad9"]
 
-  (receive-messages (build-consumer "example-topic"))
+  (receive-messages (get-in @clients [:consumer 0]))
   #_=> ["Msg: Message content"]
 
   )
