@@ -53,19 +53,18 @@
 (comment
 
   ;;------------------------------function evaluation----------------------------------
-  (deref producer-properties)
-  #_=> {"client.id"         "m-p7p1q34c6p",
-        "group.id"          "group1",
-        "bootstrap.servers" "localhost:9092",
-        "key.serializer"    org.apache.kafka.common.serialization.StringSerializer,
-        "value.serializer"  org.apache.kafka.common.serialization.StringSerializer}
+  (deref properties)
+  #_ => {:producer {"client.id" "m-p7p1q34c6p",
+                    "group.id" "group1",
+                    "bootstrap.servers" "localhost:9092",
+                    "key.serializer" org.apache.kafka.common.serialization.StringSerializer,
+                    "value.serializer" org.apache.kafka.common.serialization.StringSerializer},
+         :consumer {"client.id" "m-p7p1q34c6p",
+                    "group.id" "group1",
+                    "bootstrap.servers" "localhost:9092",
+                    "key.deserializer" org.apache.kafka.common.serialization.StringDeserializer,
+                    "value.deserializer" org.apache.kafka.common.serialization.StringDeserializer}}
 
-  (deref consumer-properties)
-  #_=> {"client.id"          "m-p7p1q34c6p",
-        "group.id"           "group1",
-        "bootstrap.servers"  "localhost:9092",
-        "key.deserializer"   org.apache.kafka.common.serialization.StringDeserializer,
-        "value.deserializer" org.apache.kafka.common.serialization.StringDeserializer}
 
   (build-producer)
   #_=> #_#object[org.apache.kafka.clients.producer.KafkaProducer
