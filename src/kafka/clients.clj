@@ -91,17 +91,17 @@
 
   (update-producer! (build-producer (get @properties :producer-config)))
   #_=> #_{:producer #object[org.apache.kafka.clients.producer.KafkaProducer
-                            0x208f5067
-                            "org.apache.kafka.clients.producer.KafkaProducer@208f5067"],
+                            0x15c823a6
+                            "org.apache.kafka.clients.producer.KafkaProducer@15c823a6"],
           :consumer nil}
 
   (update-consumer! (build-consumer (get @properties :consumer-config)))
   #_=> #_{:producer #object[org.apache.kafka.clients.producer.KafkaProducer
-                            0x208f5067
-                            "org.apache.kafka.clients.producer.KafkaProducer@208f5067"],
+                            0x15c823a6
+                            "org.apache.kafka.clients.producer.KafkaProducer@15c823a6"],
           :consumer #object[org.apache.kafka.clients.consumer.KafkaConsumer
-                            0x343f83a8
-                            "org.apache.kafka.clients.consumer.KafkaConsumer@343f83a8"]}
+                            0x656c22b9
+                            "org.apache.kafka.clients.consumer.KafkaConsumer@656c22b9"]}
 
   (send-msg! (get @clients :producer) "Message content")
   #_=> #_#object[org.apache.kafka.clients.producer.internals.FutureRecordMetadata
