@@ -56,11 +56,10 @@
 (comment
 
   ;;------------------------------function evaluation----------------------------------
-  (mount/start)
-  #_=> {:started ["#'kafka.mount-kafka/properties"
-                  "#'kafka.mount-kafka/clients"]}
+  (mount/start "#'kafka.mount-kafka/properties")
+  #_=> {:started ["#'kafka.mount-kafka/properties"]}
 
-  (do properties)
+  properties
   #_=> {:producer-config {"client.id"         "m-p7p1q34c6p",
                           "group.id"          "group1",
                           "bootstrap.servers" "localhost:9092",
@@ -74,13 +73,16 @@
                           "value.deserializer" org.apache.kafka.common.serialization.StringDeserializer},
         :consumer-topic  "example-topic"}
 
-  (do clients)
-  #_=> {:producer #object[org.apache.kafka.clients.producer.KafkaProducer
-                          0x3f44b11c
-                          "org.apache.kafka.clients.producer.KafkaProducer@3f44b11c"],
-        :consumer #object[org.apache.kafka.clients.consumer.KafkaConsumer
-                          0x2434384d
-                          "org.apache.kafka.clients.consumer.KafkaConsumer@2434384d"]}
+  (mount/start "#'kafka.mount-kafka/clients")
+  #_ => {:started ["#'kafka.mount-kafka/clients"]}
+
+  clients
+  #_=> #_{:producer #object[org.apache.kafka.clients.producer.KafkaProducer
+                            0x485eb97d
+                            "org.apache.kafka.clients.producer.KafkaProducer@485eb97d"],
+          :consumer #object[org.apache.kafka.clients.consumer.KafkaConsumer
+                            0xba1a025
+                            "org.apache.kafka.clients.consumer.KafkaConsumer@ba1a025"]}
 
   (build-producer (:producer-config properties))
   #_=> #_#object[org.apache.kafka.clients.producer.KafkaProducer
@@ -96,8 +98,6 @@
   #_=> #_#object[org.apache.kafka.clients.producer.internals.FutureRecordMetadata
                  0x4bd4dad9
                  "org.apache.kafka.clients.producer.internals.FutureRecordMetadata@4bd4dad9"]
-
-  (deref msg-counter)
 
   (receive-messages (:consumer clients))
   #_=> ["Message content"]
