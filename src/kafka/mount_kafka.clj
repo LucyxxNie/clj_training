@@ -59,6 +59,9 @@
   (mount/start "#'kafka.mount-kafka/properties")
   #_=> {:started ["#'kafka.mount-kafka/properties"]}
 
+  (mount/start "#'kafka.mount-kafka/clients")
+  #_ => {:started ["#'kafka.mount-kafka/clients"]}
+
   properties
   #_=> {:producer-config {"client.id"         "m-p7p1q34c6p",
                           "group.id"          "group1",
@@ -72,9 +75,6 @@
                           "key.deserializer"   org.apache.kafka.common.serialization.StringDeserializer,
                           "value.deserializer" org.apache.kafka.common.serialization.StringDeserializer},
         :consumer-topic  "example-topic"}
-
-  (mount/start "#'kafka.mount-kafka/clients")
-  #_ => {:started ["#'kafka.mount-kafka/clients"]}
 
   clients
   #_=> #_{:producer #object[org.apache.kafka.clients.producer.KafkaProducer
